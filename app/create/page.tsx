@@ -61,9 +61,13 @@ export default function CreateProject() {
       status: "Not Started"
     }))
 
-    await supabase
+    const {error} = await supabase
       .from('milestones')
       .insert(milestoneRows)
+
+      if(error){
+        console.error("Milestone insert failed:", error)
+      }
   }
 
   return (
