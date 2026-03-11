@@ -10,19 +10,29 @@ export default function CreateProject() {
 
   const createProject = async () => {
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { data: membership } = await supabase
+  .from('organization_members')
+  .select('organization_id')
+  .eq('user_id', user?.id)
+  .single()
+
     const { data, error } = await supabase
       .from('projects')
       .insert([
         {
           client_name: clientName,
-          go_live_date: goLiveDate
+          go_live_date: goLiveDate,
+          organization_id: membership?.organization_id
         }
       ])
       .select()
 
     if(error){
-      console.error(error)
-      return
+      console.log("Supabase Error:", error)
+  alert(error.message)
+  return
     }
 
     const projectId = data?.[0]?.id

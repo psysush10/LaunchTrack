@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
+import { useRouter } from 'next/navigation'
+
 
 export default function Dashboard() {
 
   const [projects, setProjects] = useState<any[]>([])
   const [milestones, setMilestones] = useState<any[]>([])
   const [risks, setRisks] = useState<any[]>([])
+  const router = useRouter()
 
   useEffect(() => {
     fetchProjects(),
@@ -36,9 +39,18 @@ export default function Dashboard() {
 }
   const fetchProjects = async () => {
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { data: membership } = await supabase
+  .from('organization_members')
+  .select('organization_id')
+  .eq('user_id', user?.id)
+  .single()
+
     const { data, error } = await supabase
       .from('projects')
       .select('*')
+      .eq('user_id', user?.id)
       .order('created_at', { ascending: false })
 
     if(error){
@@ -55,6 +67,12 @@ export default function Dashboard() {
   const today = new Date()
   const delayedMilestones = milestones.filter(m =>
 m.due_date && new Date(m.due_date) < today && m.status !== "Completed").length
+
+//logout
+const logout = async () => {
+  await supabase.auth.signOut()
+  router.push('/login')
+}
 
 //project progress
 const getProjectProgress = (projectId:string) => {
@@ -118,6 +136,17 @@ const formatDate = (date: string) => {
         >
           + Create Implementation
         </Link>
+        <Link href="/members"
+        className="bg-blue-600 text-white px-4 py-2 rounded">
+  Members
+</Link>
+
+        <button
+  onClick={logout}
+  className="border px-3 py-1 rounded">
+Logout
+</button>
+
 
       </div>
 
