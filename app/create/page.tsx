@@ -35,18 +35,19 @@ export default function CreateProject() {
   const createMilestones = async (projectId:string) => {
 
     const milestones = [
-      { name: "Discovery" },
-      { name: "Configuration" },
-      { name: "Data Migration" },
-      { name: "Integrations" },
-      { name: "UAT" },
-      { name: "Training" },
-      { name: "Go Live" }
+      { name: "Discovery", order_index: 1 },
+      { name: "Configuration", order_index: 2 },
+      { name: "Data Migration", order_index: 3 },
+      { name: "Integrations", order_index: 4 },
+      { name: "UAT", order_index: 5 },
+      { name: "Training", order_index: 6 },
+      { name: "Go Live", order_index: 7 }
     ]
 
     const milestoneRows = milestones.map(m => ({
       project_id: projectId,
       name: m.name,
+      order_index: m.order_index,
       status: "Not Started"
     }))
 
