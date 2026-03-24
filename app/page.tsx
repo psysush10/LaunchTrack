@@ -11,12 +11,20 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([])
   const [milestones, setMilestones] = useState<any[]>([])
   const [risks, setRisks] = useState<any[]>([])
+  const [needsAttention, setNeedsAttention] = useState<any[]>([])
+  const [watchlist, setWatchlist] = useState<any[]>([])
+  const [healthyProjects, setHealthyProjects] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => {
     fetchProjects(),
     fetchDashboardData()
   }, [])
+  useEffect(()=>{
+  if(projects.length > 0){
+    computeCommandCenter()
+  }
+},[projects, risks])
 
   const fetchDashboardData = async () => {
 
@@ -95,21 +103,105 @@ const getProjectHealth = (projectId: string) => {
 
   const today = new Date()
 
+  const project = projects.find(p => p.id === projectId)
+
   const projectMilestones = milestones.filter(
-    (m) => m.project_id === projectId
+    m => m.project_id === projectId
   )
 
-  const delayed = projectMilestones.filter(
-    (m) =>
+  const projectRisks = risks.filter(
+    r => r.project_id === projectId && r.status !== "Mitigated"
+  )
+
+  const delayedMilestones = projectMilestones.filter(
+    m =>
       m.due_date &&
       new Date(m.due_date) < today &&
       m.status !== "Completed"
   )
 
-  if (delayed.length >= 3) return "At Risk"
-  if (delayed.length > 0) return "Warning"
+  const daysToGoLive =
+    (new Date(project.go_live_date).getTime() - today.getTime())
+    / (1000 * 60 * 60 * 24)
 
-  return "Healthy"
+  if (projectRisks.length > 0) {
+    return {
+      status: "At Risk",
+      reason: "Open risk"
+    }
+  }
+
+  if (delayedMilestones.length > 0) {
+    return {
+      status: "Warning",
+      reason: "Delayed milestone"
+    }
+  }
+
+  if (daysToGoLive <= 7) {
+    return {
+      status: "Warning",
+      reason: "Go-live within 7 days"
+    }
+  }
+
+  return {
+    status: "Healthy",
+    reason: "On track"
+  }
+}
+
+//compute project health
+const computeCommandCenter = () => {
+
+  const today = new Date()
+
+  const attention:any[] = []
+  const watch:any[] = []
+  const healthy:any[] = []
+
+  projects.forEach(project => {
+
+    const projectRisks = risks.filter(
+      r => r.project_id === project.id && r.status !== "Mitigated"
+    )
+
+    const daysToGoLive =
+      (new Date(project.go_live_date).getTime() - today.getTime())
+      / (1000 * 60 * 60 * 24)
+
+    if(projectRisks.length > 0){
+      attention.push({
+        ...project,
+        reason: "Open Risk"
+      })
+      return
+    }
+
+    if(daysToGoLive <= 7){
+      attention.push({
+        ...project,
+        reason: "Go-Live within 7 days"
+      })
+      return
+    }
+
+    if(daysToGoLive <= 14){
+      watch.push({
+        ...project,
+        reason: "Go-Live approaching"
+      })
+      return
+    }
+
+    healthy.push(project)
+
+  })
+
+  setNeedsAttention(attention)
+  setWatchlist(watch)
+  setHealthyProjects(healthy)
+
 }
 
 //date format
@@ -190,19 +282,91 @@ Logout
 
 </div>
 
+{/* command center */}
+<div className="bg-gray-50 border rounded p-4 mb-8">
+
+<h2 className="text-lg font-semibold mb-4">
+Implementation Command Center
+</h2>
+
+<div className="grid grid-cols-3 gap-8">
+
+<div className="bg-white p-4 rounded border">
+
+<h3 className="font-semibold text-red-600">
+🔴 Needs Attention ({needsAttention.length})
+</h3>
+
+{needsAttention.map(p=>(
+<div key={p.id} className="text-sm py-1">
+<Link href={`/project/${p.id}`}>
+  {p.client_name} — {p.reason}
+</Link>
+</div>
+))}
+
+</div>
+
+<div className="bg-white p-4 rounded border">
+
+<h3 className="font-semibold text-yellow-600">
+🟡 Watchlist ({watchlist.length})
+</h3>
+
+{watchlist.map(p=>(
+<div key={p.id} className="text-sm py-1">
+<Link href={`/project/${p.id}`}>
+  {p.client_name} — {p.reason}
+</Link>
+</div>
+))}
+
+</div>
+
+<div className="bg-white p-4 rounded border">
+
+<h3 className="font-semibold text-green-600">
+🟢 Healthy ({healthyProjects.length})
+</h3>
+
+{healthyProjects.slice(0,5).map(p=>(
+<div key={p.id} className="text-sm py-1">
+<Link href={`/project/${p.id}`}>
+  {p.client_name}
+</Link>
+</div>
+))}
+
+</div>
+
+</div>
+
+</div>
+
 
 <div className="border rounded">
 
 {projects.map((project)=>{
   const progress = getProjectProgress(project.id)
-  const health = getProjectHealth(project.id)
+  const healthData = getProjectHealth(project.id)
+
+  //health based border
+  let borderColor = "border-green-500"
+
+if (healthData.status === "Warning") {
+  borderColor = "border-yellow-500"
+}
+
+if (healthData.status === "At Risk") {
+  borderColor = "border-red-500"
+}
 
   return (
 
 <Link
   key={project.id}
   href={`/project/${project.id}`}
-  className="block border-b p-4 hover:bg-gray-50 transition hover:shadow-sm"
+  className={`block border border-gray-200 border-l-4 ${borderColor} p-4 hover:bg-gray-50 transition hover:shadow-sm`}
 >
 
   <div className="font-semibold">
@@ -215,11 +379,14 @@ Logout
 
   <div className="text-sm mt-2">
 
-    {health === "Healthy" && "🟢 Healthy"}
-    {health === "Warning" && "🟡 Warning"}
-    {health === "At Risk" && "🔴 At Risk"}
+    {healthData.status === "Healthy" && "🟢 Healthy"}
+    {healthData.status === "Warning" && "🟡 Warning"}
+    {healthData.status === "At Risk" && "🔴 At Risk"}
 
   </div>
+  <div className="text-sm text-gray-500">
+  {healthData.reason}
+</div>
   <div className="text-sm text-gray-500">
 Progress: {progress}%
 </div>
