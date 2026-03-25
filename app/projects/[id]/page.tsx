@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useParams } from 'next/navigation'
-import Timeline from "@/app/components/Timeline"
+import Timeline from "@/components/Timeline"
 
 export default function ProjectPage() {
 

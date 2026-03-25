@@ -299,7 +299,7 @@ Implementation Command Center
 
 {needsAttention.map(p=>(
 <div key={p.id} className="text-sm py-1">
-<Link href={`/project/${p.id}`}>
+<Link href={`/projects/${p.id}`}>
   {p.client_name} — {p.reason}
 </Link>
 </div>
@@ -315,7 +315,7 @@ Implementation Command Center
 
 {watchlist.map(p=>(
 <div key={p.id} className="text-sm py-1">
-<Link href={`/project/${p.id}`}>
+<Link href={`/projects/${p.id}`}>
   {p.client_name} — {p.reason}
 </Link>
 </div>
@@ -331,7 +331,7 @@ Implementation Command Center
 
 {healthyProjects.slice(0,5).map(p=>(
 <div key={p.id} className="text-sm py-1">
-<Link href={`/project/${p.id}`}>
+<Link href={`/projects/${p.id}`}>
   {p.client_name}
 </Link>
 </div>
@@ -365,7 +365,7 @@ if (healthData.status === "At Risk") {
 
 <Link
   key={project.id}
-  href={`/project/${project.id}`}
+  href={`/projects/${project.id}`}
   className={`block border border-gray-200 border-l-4 ${borderColor} p-4 hover:bg-gray-50 transition hover:shadow-sm`}
 >
 
