@@ -1,6 +1,18 @@
-# 🚀 LaunchTrack – SaaS Implementation Intelligence Platform
+# 🚀 LaunchTrack — SaaS Implementation Intelligence Platform
 
 LaunchTrack is a multi-tenant SaaS system designed to help implementation teams manage high-volume customer onboarding and detect delivery risks early.
+
+## 🧩 System Architecture
+
+LaunchTrack is part of a multi-component system:
+
+* **Notify Engine** → Event-driven notification system (Slack, Email, Webhooks)
+* **LaunchTrack Dashboard** → Analytics dashboard for project health and delivery insights
+
+## 🔗 Related Projects
+
+* Notify Engine: https://github.com/psysush10/notify-engine
+* Dashboard: https://github.com/psysush10/launchtrack-dashboard
 
 ## 🎯 Problem
 
