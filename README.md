@@ -64,7 +64,7 @@ LaunchTrack provides a centralized system focused on **implementation visibility
 
 ### Command Center (Risk Detection)
 
-![Command Center](public/screenshots/Command Center.png)
+(public/screenshots/Command Center.png)
 
 ### Project Tracking
 
