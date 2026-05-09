@@ -68,41 +68,9 @@ export default function Dashboard() {
   
 
 }
-  const fetchProjects = async () => {
-    try{
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser()
-
-      const { data: membership } = await supabase
-      .from('organization_members')
-      .select('organization_id')
-      .eq('user_id', user?.id)
-      .single()
-
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-
-      if(error){
-        console.error(error)
-        return
-      }
-      setProjects(data || [])
-    }catch(err){
-      setError(err.message);
-    }finally{
-      setLoading(false);
-    }
-
-    
-
-
-  }
 
   const activeProjects = projects.length
-  const completedProjects = projects.filter(p => p.status === "Completed").length || 3;
+  const completedProjects = projects.filter(p => p.status === "Completed").length || 3
   const openRisks = risks.filter(r => r.status !== "Mitigated").length
   const today = new Date()
   const delayedMilestones = milestones.filter(m =>
