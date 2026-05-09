@@ -18,7 +18,21 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    fetchDashboardData()
+    const checkAuth = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    await fetchDashboardData()
+  }
+
+  checkAuth()
+
   }, [])
   useEffect(()=>{
   if(projects.length > 0){
