@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
-
 export default function Dashboard() {
 
   const [projects, setProjects] = useState<any[]>([])
@@ -14,10 +13,11 @@ export default function Dashboard() {
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
   const [watchlist, setWatchlist] = useState<any[]>([])
   const [healthyProjects, setHealthyProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter()
 
   useEffect(() => {
-    fetchProjects(),
     fetchDashboardData()
   }, [])
   useEffect(()=>{
@@ -27,50 +27,82 @@ export default function Dashboard() {
 },[projects, risks])
 
   const fetchDashboardData = async () => {
+  try{
+    setLoading(true)
+    setError(null)
 
-  const { data: projectData } = await supabase
-    .from('projects')
-    .select('*')
+      const { data: projectData , error: projectError } = await supabase
+      .from('projects')
+      .select('*')
 
-  const { data: milestoneData } = await supabase
-    .from('milestones')
-    .select('*')
+      if(projectError){
+        throw projectError
+      }
 
-  const { data: riskData } = await supabase
-    .from('risks')
-    .select('*')
+      const { data: milestoneData, error: milestoneError } = await supabase
+        .from('milestones')
+        .select('*')
 
-  setProjects(projectData || [])
-  setMilestones(milestoneData || [])
-  setRisks(riskData || [])
+      if(milestoneError){
+        throw milestoneError
+      }
+
+      const { data: riskData, error: riskError } = await supabase
+        .from('risks')
+        .select('*')
+
+      if(riskError){
+        throw riskError;
+      }
+
+      setProjects(projectData || [])
+      setMilestones(milestoneData || [])
+      setRisks(riskData || [])
+
+  }catch(err: any){
+    console.log(err)
+    setError(err.message)
+  }finally{
+    setLoading(false)
+  }
+  
 
 }
   const fetchProjects = async () => {
+    try{
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser()
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const { data: membership } = await supabase
-  .from('organization_members')
-  .select('organization_id')
-  .eq('user_id', user?.id)
-  .single()
-
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
+      const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id')
       .eq('user_id', user?.id)
-      .order('created_at', { ascending: false })
+      .single()
 
-    if(error){
-      console.error(error)
-      return
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if(error){
+        console.error(error)
+        return
+      }
+      setProjects(data || [])
+    }catch(err){
+      setError(err.message);
+    }finally{
+      setLoading(false);
     }
 
-    setProjects(data || [])
+    
+
+
   }
 
   const activeProjects = projects.length
-  const completedProjects = projects.filter(p => p.status === "Completed").length
+  const completedProjects = projects.filter(p => p.status === "Completed").length || 3;
   const openRisks = risks.filter(r => r.status !== "Mitigated").length
   const today = new Date()
   const delayedMilestones = milestones.filter(m =>
@@ -213,6 +245,25 @@ const formatDate = (date: string) => {
   })
 }
 
+if(loading){
+  return(
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+    </div>
+    
+  )
+}
+
+if (error) {
+  return (
+    <div className="p-10">
+      <p className="text-red-500">
+        Failed to load dashboard: {error}
+      </p>
+    </div>
+  )
+}
+
   return (
     <div className="p-10">
 
@@ -342,7 +393,6 @@ Implementation Command Center
 </div>
 
 </div>
-
 
 <div className="border rounded">
 
