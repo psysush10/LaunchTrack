@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import EmptyState from '@/components/EmptyState'
+import ProjectList from '@/components/ProjectList'
 
 export default function Dashboard() {
 
@@ -247,6 +249,7 @@ if (error) {
 }
 
   return (
+
     <div className="p-10">
 
       <div className="flex justify-between mb-6">
@@ -376,61 +379,16 @@ Implementation Command Center
 
 </div>
 
-<div className="border rounded">
-
-{projects.map((project)=>{
-  const progress = getProjectProgress(project.id)
-  const healthData = getProjectHealth(project.id)
-
-  //health based border
-  let borderColor = "border-green-500"
-
-if (healthData.status === "Warning") {
-  borderColor = "border-yellow-500"
+{ projects.length === 0 ? (
+  <EmptyState />
+) : (
+  <ProjectList
+    projects={projects}
+    getProjectProgress={getProjectProgress}
+    getProjectHealth={getProjectHealth}
+    formatDate={formatDate} />
+)
 }
-
-if (healthData.status === "At Risk") {
-  borderColor = "border-red-500"
-}
-
-  return (
-
-<Link
-  key={project.id}
-  href={`/projects/${project.id}`}
-  className={`block border border-gray-200 border-l-4 ${borderColor} p-4 hover:bg-gray-50 transition hover:shadow-sm`}
->
-
-  <div className="font-semibold">
-    {project.client_name}
-  </div>
-
-  <div className="text-sm text-gray-500">
-    Go Live: {formatDate(project.go_live_date)}
-  </div>
-
-  <div className="text-sm mt-2">
-
-    {healthData.status === "Healthy" && "🟢 Healthy"}
-    {healthData.status === "Warning" && "🟡 Warning"}
-    {healthData.status === "At Risk" && "🔴 At Risk"}
-
-  </div>
-  <div className="text-sm text-gray-500">
-  {healthData.reason}
-</div>
-  <div className="text-sm text-gray-500">
-Progress: {progress}%
-</div>
-
-</Link>
-
-  )
-
-})}
-
-</div>
-
     </div>
   )
 }
