@@ -5,46 +5,65 @@ import { supabase } from '@/lib/supabaseClient'
 
 export default function CreateProject() {
 
+  const [loading, setLoading] = useState(false);
   const [clientName, setClientName] = useState('')
   const [goLiveDate, setGoLiveDate] = useState('')
 
   const createProject = async () => {
 
-    const { data: { user } } = await supabase.auth.getUser()
+  try{
+       if(!clientName || !goLiveDate){
+        alert("Please fill all fields")
+        return
+      }
+      setLoading(true)
 
-    const { data: membership } = await supabase
-  .from('organization_members')
-  .select('organization_id')
-  .eq('user_id', user?.id)
-  .single()
+      const { data: { user } } = await supabase.auth.getUser()
 
-    const { data, error } = await supabase
-      .from('projects')
-      .insert([
-        {
-          client_name: clientName,
-          go_live_date: goLiveDate,
-          organization_id: membership?.organization_id
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user?.id)
+        .single()
+
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([
+          {
+            client_name: clientName,
+            go_live_date: goLiveDate,
+            organization_id: membership?.organization_id
+          }
+        ])
+        .select()
+
+        if(error){
+          throw error
         }
-      ])
-      .select()
 
-    if(error){
-      console.log("Supabase Error:", error)
-  alert(error.message)
-  return
-    }
+      const projectId = data?.[0]?.id
 
-    const projectId = data?.[0]?.id
+      await createMilestones(projectId)
 
-    await createMilestones(projectId)
+      alert("Implementation created")
+      setClientName("")
+      setGoLiveDate("")
 
-    alert("Implementation created")
+  }catch(err: any){
+    console.log("Supabase Error:", err)
+          alert(err.message)
+          return
+  }finally{
+    setLoading(false)
+  }
+
   }
 
   const createMilestones = async (projectId:string) => {
 
-    const milestones = [
+
+    try{
+      const milestones = [
       { name: "Discovery", order_index: 1 },
       { name: "Configuration", order_index: 2 },
       { name: "Data Migration", order_index: 3 },
@@ -66,8 +85,15 @@ export default function CreateProject() {
       .insert(milestoneRows)
 
       if(error){
-        console.error("Milestone insert failed:", error)
+        throw error
       }
+    }catch(err: any){
+        console.log("Supabase Error:", err)
+          alert(err.message)
+          setLoading(false)
+          return
+    }
+    
   }
 
   return (
@@ -93,10 +119,11 @@ export default function CreateProject() {
       />
 
       <button
+        disabled={loading}
         onClick={createProject}
         className="bg-blue-600 text-white px-4 py-2 rounded"
       >
-        Create Implementation
+        {loading ? "Creating ..." : "Create Implementation"} 
       </button>
 
     </div>
