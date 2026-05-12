@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import FormInput from '@/components/FormInput'
 
 export default function CreateProject() {
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [clientName, setClientName] = useState('')
   const [goLiveDate, setGoLiveDate] = useState('')
 
@@ -13,7 +15,7 @@ export default function CreateProject() {
 
   try{
        if(!clientName || !goLiveDate){
-        alert("Please fill all fields")
+        setError("Please fill all fields")
         return
       }
       setLoading(true)
@@ -48,10 +50,11 @@ export default function CreateProject() {
       alert("Implementation created")
       setClientName("")
       setGoLiveDate("")
+      setError("")
 
   }catch(err: any){
     console.log("Supabase Error:", err)
-          alert(err.message)
+    setError(err.message)
           return
   }finally{
     setLoading(false)
@@ -89,34 +92,41 @@ export default function CreateProject() {
       }
     }catch(err: any){
         console.log("Supabase Error:", err)
-          alert(err.message)
-          setLoading(false)
+          setError(err.message)
           return
     }
     
   }
 
+  
+
   return (
+    
     <div className="p-10">
 
       <h1 className="text-2xl font-bold mb-6">
         Create Implementation
       </h1>
 
-      <input
-        type="text"
+      {error && (
+        <p className="text-red-500">
+          {error}
+        </p>
+      )}
+
+      <FormInput
         placeholder="Client Name"
         value={clientName}
-        onChange={(e)=>setClientName(e.target.value)}
-        className="border p-2 block mb-4"
+        onChange={setClientName}
       />
 
-      <input
+      <FormInput
         type="date"
+        placeholder="Go Live Date"
         value={goLiveDate}
-        onChange={(e)=>setGoLiveDate(e.target.value)}
-        className="border p-2 block mb-4"
+        onChange={setGoLiveDate}
       />
+
 
       <button
         disabled={loading}
