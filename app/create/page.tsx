@@ -1,15 +1,25 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import FormInput from '@/components/FormInput'
+import SuccessModal from '@/components/SuccessModal'
 
 export default function CreateProject() {
 
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [clientName, setClientName] = useState('')
   const [goLiveDate, setGoLiveDate] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const playSuccessSound = () => {
+  const audio = new Audio("/sounds/success.mp3");
+  audio.volume = 0.4;
+  audio.play();
+};
 
   const createProject = async () => {
 
@@ -47,10 +57,20 @@ export default function CreateProject() {
 
       await createMilestones(projectId)
 
-      alert("Implementation created")
+      playSuccessSound()
+      setShowSuccess(true)
+
+      setTimeout(() => {
+        setShowSuccess(false)
+      },2200)
+
+      // alert("Implementation created")
       setClientName("")
       setGoLiveDate("")
       setError("")
+      setTimeout(() => {
+        router.push(`/projects/${projectId}`)
+      },2600)
 
   }catch(err: any){
     console.log("Supabase Error:", err)
@@ -135,6 +155,8 @@ export default function CreateProject() {
       >
         {loading ? "Creating ..." : "Create Implementation"} 
       </button>
+
+      <SuccessModal isVisible={showSuccess} />
 
     </div>
   )
