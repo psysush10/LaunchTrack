@@ -1,4 +1,5 @@
 import Link from "next/link"
+import HealthBadge from "./HealthBadge"
 
 interface ProjectCardProps {
   project: {
@@ -52,13 +53,7 @@ export default function ProjectCard({
         Go Live: {formatDate(project.go_live_date)}
     </div>
 
-    <div className="text-sm mt-2">
-
-        {healthData.status === "Healthy" && "🟢 Healthy"}
-        {healthData.status === "Warning" && "🟡 Warning"}
-        {healthData.status === "At Risk" && "🔴 At Risk"}
-
-    </div>
+    <HealthBadge status={healthData.status} />
     <div className="text-sm text-gray-500">
     {healthData.reason}
     </div>
