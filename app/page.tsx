@@ -356,7 +356,8 @@ Implementation Command Center
     projects={projects}
     getProjectProgress={getProjectProgress}
     getProjectHealth={getProjectHealth}
-    formatDate={formatDate} />
+    formatDate={formatDate}
+    fetchDashboardData={fetchDashboardData} />
 )
 }
     </div>

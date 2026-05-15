@@ -12,13 +12,15 @@ interface ProjectListProps {
   }
 
   formatDate: (date: string) => string
+  fetchDashboardData: () => Promise<void>
 }
 
 export default function ProjectList({
   projects,
   getProjectProgress,
   getProjectHealth,
-  formatDate
+  formatDate,
+  fetchDashboardData
 }: ProjectListProps) {
   return (
     <div className="grid gap-4">
@@ -29,6 +31,7 @@ export default function ProjectList({
           getProjectProgress={getProjectProgress}
           getProjectHealth={getProjectHealth}
           formatDate={formatDate}
+          fetchDashboardData={fetchDashboardData}
         />
       ))}
     </div>
