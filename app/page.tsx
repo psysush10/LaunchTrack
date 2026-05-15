@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import EmptyState from '@/components/EmptyState'
 import ProjectList from '@/components/ProjectList'
+import SummaryCard from '@/components/SummaryCard'
+import CommandCenterSection from '@/components/CommandCenterSection'
 
 export default function Dashboard() {
 
@@ -278,43 +280,32 @@ Logout
 
       </div>
 
+{/* Implementation Dashboard */}
 <div className="grid grid-cols-4 gap-4 mb-8">
 
-  <div className="bg-white border p-4 rounded">
-    <div className="text-sm text-gray-500">
-      Active Projects
-    </div>
-    <div className="text-2xl font-bold">
-      {activeProjects}
-    </div>
-  </div>
 
-  <div className="bg-white border p-4 rounded">
-    <div className="text-sm text-gray-500">
-      Delayed Milestones
-    </div>
-    <div className="text-2xl font-bold text-red-500">
-      {delayedMilestones}
-    </div>
-  </div>
+  <SummaryCard
+   title="Active Projects"
+   value={activeProjects}
+   />
 
-  <div className="bg-white border p-4 rounded">
-    <div className="text-sm text-gray-500">
-      Open Risks
-    </div>
-    <div className="text-2xl font-bold text-orange-500">
-      {openRisks}
-    </div>
-  </div>
+   <SummaryCard
+   title="Delayed Milestones"
+   value={delayedMilestones}
+   valueColor='text-red-500'
+   />
 
-  <div className="bg-white border p-4 rounded">
-    <div className="text-sm text-gray-500">
-      Completed Projects
-    </div>
-    <div className="text-2xl font-bold text-green-500">
-      {completedProjects}
-    </div>
-  </div>
+    <SummaryCard
+   title="Open Risks"
+   value={openRisks}
+   valueColor='text-red-500'
+   />
+
+   <SummaryCard
+   title="Completed Projects"
+   value={completedProjects}
+   valueColor='text-green-500'
+   />
 
 </div>
 
@@ -327,53 +318,32 @@ Implementation Command Center
 
 <div className="grid grid-cols-3 gap-8">
 
-<div className="bg-white p-4 rounded border">
 
-<h3 className="font-semibold text-red-600">
-🔴 Needs Attention ({needsAttention.length})
-</h3>
+<CommandCenterSection
+  title="Needs Attention"
+  color="text-red-600"
+  projects={needsAttention}
+  emoji='🔴'
+  showReason={true}
+  />
 
-{needsAttention.map(p=>(
-<div key={p.id} className="text-sm py-1">
-<Link href={`/projects/${p.id}`}>
-  {p.client_name} — {p.reason}
-</Link>
-</div>
-))}
+<CommandCenterSection
+  title="Watchlist"
+  color="text-yellow-600"
+  projects={watchlist}
+  emoji='🟡'
+  showReason={true}
+  />
 
-</div>
+<CommandCenterSection
+  title="Healthy"
+  color="text-green-600"
+  projects={healthyProjects}
+  emoji='🟢'
+  showReason={false}
+  />
 
-<div className="bg-white p-4 rounded border">
 
-<h3 className="font-semibold text-yellow-600">
-🟡 Watchlist ({watchlist.length})
-</h3>
-
-{watchlist.map(p=>(
-<div key={p.id} className="text-sm py-1">
-<Link href={`/projects/${p.id}`}>
-  {p.client_name} — {p.reason}
-</Link>
-</div>
-))}
-
-</div>
-
-<div className="bg-white p-4 rounded border">
-
-<h3 className="font-semibold text-green-600">
-🟢 Healthy ({healthyProjects.length})
-</h3>
-
-{healthyProjects.slice(0,5).map(p=>(
-<div key={p.id} className="text-sm py-1">
-<Link href={`/projects/${p.id}`}>
-  {p.client_name}
-</Link>
-</div>
-))}
-
-</div>
 
 </div>
 

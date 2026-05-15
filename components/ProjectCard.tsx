@@ -54,6 +54,7 @@ export default function ProjectCard({
     </div>
 
     <HealthBadge status={healthData.status} />
+    
     <div className="text-sm text-gray-500">
     {healthData.reason}
     </div>
