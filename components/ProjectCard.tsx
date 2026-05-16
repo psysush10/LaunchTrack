@@ -33,6 +33,7 @@ export default function ProjectCard({
 }: ProjectCardProps) {
 
     const [editing, setEditing] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [clientName, setClientName] = useState(project.client_name)
     const [goLiveDate, setGoLiveDate] = useState(project.go_live_date)
     const progress = getProjectProgress(project.id)
@@ -50,6 +51,7 @@ export default function ProjectCard({
 
     const updateProject = async () => {
       try{
+        setLoading(true)
         const {error} = await supabase
         .from('projects')
         .update({
@@ -65,6 +67,8 @@ export default function ProjectCard({
         setEditing(false)
       }catch(err: any){
         console.log("Supabase Error :",err)
+      }finally{
+        setLoading(false)
       }
     }
 
@@ -121,12 +125,27 @@ export default function ProjectCard({
           onChange={setGoLiveDate}
         />
 
-        <button
-          onClick={updateProject}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Save
-        </button>
+        <div
+          className="flex gap-2 mt-4">
+          <button
+            onClick={() => {
+              setClientName(project.client_name)
+              setGoLiveDate(project.go_live_date)
+              setEditing(false)
+            }}
+            className="ml-2 border px-4 py-2 rounded"
+          >
+              Cancel
+          </button>
+
+          <button
+            disabled={loading}
+            onClick={updateProject}
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : "Save"}
+          </button>
+        </div>
 
       </div>
 
