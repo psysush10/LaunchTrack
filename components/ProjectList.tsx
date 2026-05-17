@@ -1,4 +1,5 @@
 import ProjectCard from "./ProjectCard"
+import { useState } from "react"
 
 interface ProjectListProps {
   projects: any[]
@@ -22,9 +23,29 @@ export default function ProjectList({
   formatDate,
   fetchDashboardData
 }: ProjectListProps) {
+
+  const [search, setSearch] = useState("")
+
+  const filteredProjects = projects.filter((project) =>
+  project.client_name
+    .toLowerCase()
+    .includes(search.toLowerCase())
+  )
+
   return (
+    
     <div className="grid gap-4">
-      {projects.map((project) => (
+      <input
+        type="text"
+        placeholder="Search projects..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="border p-2 rounded w-full mb-4"
+      />
+
+      {filteredProjects.length > 0 ? (
+
+        filteredProjects.map((project) => (
         <ProjectCard
           key={project.id}
           project={project}
@@ -33,7 +54,14 @@ export default function ProjectList({
           formatDate={formatDate}
           fetchDashboardData={fetchDashboardData}
         />
-      ))}
+      ))
+
+      ): (
+         <div className="text-gray-500 text-sm border rounded p-4">
+          No matching projects found.
+        </div>
+      )}
+      
     </div>
   )
 }
