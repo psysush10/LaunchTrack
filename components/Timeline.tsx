@@ -2,53 +2,62 @@ type Milestone = {
   id: string
   name: string
   status: string
+  computedStatus?: string
+  depends_on?: string[]
+  blocker_reason?: string
+
 }
 
 export default function Timeline({ milestones }: { milestones: Milestone[] }) {
 
+
+
   const getStatusIcon = (status: string) => {
     if (status === "Completed") return "✔"
     if (status === "In Progress") return "●"
+    if(status === "Blocked") return "⚠"
     return "○"
   }
 
-  return (
-    <div className="flex items-center gap-4 overflow-x-auto py-4">
+  return(
+    <div
+    className="flex items-center gap-4 overflow-x-auto py-4">
 
-      {milestones.map((m, index) => (
+      {milestones.map((milestone, index) => {
+    const displayStatus = milestone.computedStatus || milestone.status
+    return (
+          <div key={milestone.id} className="flex items-center gap-6">
+            <div className="flex flex-col items-center">
+              <div
+    className={`text-lg ${
+      displayStatus === "Completed"
+        ? "text-green-500"
+        : displayStatus === "In Progress"
+        ? "text-blue-500"
+        : displayStatus === "Blocked"
+        ? "text-red-500"
+        : "text-gray-400"
+    }`}
+  >
+    {getStatusIcon(displayStatus)}
+  </div>
 
-        <div key={m.id} className="flex items-center gap-6">
+              <div className="text-xs text-gray-500 mt-10">
+                {milestone.name}
+              </div>
 
-          <div className="flex flex-col items-center">
-
-            <div
-  className={`text-lg ${
-    m.status === "Completed"
-      ? "text-green-500"
-      : m.status === "In Progress"
-      ? "text-blue-500"
-      : m.status === "Blocked"
-      ? "text-red-500"
-      : "text-gray-400"
-  }`}
->
-  {getStatusIcon(m.status)}
-</div>
-
-            <div className="text-xs text-gray-500 mt-10">
-              {m.name}
             </div>
 
+            {index !== milestones.length - 1 && (
+              <div className="w-10 h-[2px] bg-gray-200" />
+            )}
+
           </div>
-
-          {index !== milestones.length - 1 && (
-            <div className="w-10 h-[2px] bg-gray-200" />
-          )}
-
-        </div>
-
-      ))}
+    )
+  })}
 
     </div>
   )
+
+  
 }

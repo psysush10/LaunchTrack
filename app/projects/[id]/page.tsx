@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useParams } from 'next/navigation'
 import Timeline from "@/components/Timeline"
+import { getComputedStatus } from '@/utils/milestone'
 
 export default function ProjectPage() {
 
@@ -73,6 +74,7 @@ const addRisk = async () => {
   setRiskText("")
   fetchRisks()
 }
+
 // progress calculation
   const totalMilestones = milestones?.length || 0
 
@@ -112,6 +114,18 @@ const health = getHealth()
   // update milestone status
   const updateStatus = async (milestoneId:string, status:string) => {
 
+  const currentMilestone = computedMilestones.find(
+    (milestone) => milestone.id === milestoneId
+  )
+
+  if(
+    currentMilestone?.computedStatus ==="Blocked" && 
+    status == "Completed"
+  ){
+    alert("Resolve dependencies first")
+    return
+  }
+
   const { error } = await supabase
     .from('milestones')
     .update({ status })
@@ -133,6 +147,14 @@ const getStatusColor = (status: string) => {
   return "bg-gray-100 text-gray-700"
 }
 
+//computedMilestones
+
+const computedMilestones = milestones.map((milestone) => ({
+  ...milestone,
+  computedStatus: getComputedStatus(milestone,milestones)
+}))
+
+
   return (
     <div className="p-10">
 
@@ -151,106 +173,118 @@ const getStatusColor = (status: string) => {
       style={{ width: `${progress}%` }}
     />
   </div>
-</div>
+      </div>
 
-<p className="text-sm mt-3 font-medium">
-  Health: 
-  {health === "Healthy" && " 🟢 Healthy"}
-  {health === "Warning" && " 🟡 Warning"}
-  {health === "At Risk" && " 🔴 At Risk"}
-</p>
+      <p className="text-sm mt-3 font-medium">
+        Health: 
+        {health === "Healthy" && " 🟢 Healthy"}
+        {health === "Warning" && " 🟡 Warning"}
+        {health === "At Risk" && " 🔴 At Risk"}
+      </p>
 
-<div className="flex items-center gap-4 overflow-x-auto mb-8">
-  <div className="mt-6 mb-6">
+      <div className="flex items-center gap-4 overflow-x-auto mb-8">
+        <div className="mt-6 mb-6">
 
-  <h2 className="text-lg font-semibold mb-2">
-    Implementation Timeline
-  </h2>
+        <h2 className="text-lg font-semibold mb-2">
+          Implementation Timeline
+        </h2>
 
-  <Timeline milestones={milestones} />
-
-</div>
-</div>
-
-      <div className="border rounded">
-
-  {milestones.map((m)=>(
-    <div key={m.id} className="border-b p-4 flex items-center justify-between">
-
-      <div className="flex flex-col">
-
-  <div
-    className={`font-semibold px-2 py-1 rounded w-fit ${getStatusColor(m.status)}`}
-  >
-    {m.name}
-  </div>
-
-  {m.due_date && (
-    <div className="text-xs text-gray-500 mt-1">
-      Due: {new Date(m.due_date).toLocaleDateString()}
-    </div>
-  )}
-
-</div>
-
-      <select
-        value={m.status}
-        onChange={(e)=>updateStatus(m.id, e.target.value)}
-        className="border p-1"
-      >
-        <option>Not Started</option>
-        <option>In Progress</option>
-        <option>Completed</option>
-        <option>Blocked</option>
-      </select>
-
-    </div>
-  ))}
-
-</div>
-    <div className="mt-10">
-
-  <h2 className="text-xl font-bold mb-4">
-    ⚠ Implementation Risks
-  </h2>
-
-  <div className="flex gap-2 mb-4">
-
-    <input
-      value={riskText}
-      onChange={(e)=>setRiskText(e.target.value)}
-      placeholder="Describe risk..."
-      className="border p-2 flex-1"
-    />
-
-    <button
-      onClick={addRisk}
-      className="bg-red-500 text-white px-4 py-2 rounded"
-    >
-      Add Risk
-    </button>
-
-  </div>
-
-  <div className="border rounded">
-
-    {risks.map((r)=>(
-      <div key={r.id} className="border-b p-3">
-
-        <div className="font-medium">
-          {r.description}
-        </div>
-
-        <div className="text-xs text-gray-500">
-          Severity: {r.severity}
-        </div>
+        <Timeline milestones={computedMilestones} />
 
       </div>
-    ))}
+      </div>
 
-  </div>
+      {computedMilestones.map((m)=>{
+        const displayStatus = m.computedStatus || m.status
+        return(
+        <div className="border rounded">
+        <div key={m.id} className="border-b p-4 flex items-center justify-between hover:bg-gray-100 transition">
 
-</div>
+        <div className="flex flex-col">
+
+        <div
+          className={`font-semibold px-2 py-1 rounded w-fit ${getStatusColor(displayStatus)}`}
+        >
+          {m.name}
+        </div>
+
+        {m.due_date && (
+          <div className="text-xs text-gray-500 mt-1">
+            Due: {new Date(m.due_date).toLocaleDateString()}
+          </div>
+        )}
+
+        {displayStatus ==="Blocked" && (
+            <p className="text-xs text-red-500 mt-1">
+              {m.blocker_reason}
+            </p>
+          )}
+
+        </div>
+
+        <div
+        className='flex items-center gap-3'>
+          
+          <select
+            value={m.status}
+            onChange={(e)=>updateStatus(m.id, e.target.value)}
+            className="border p-1"
+          >
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Blocked</option>
+          </select>
+        </div>
+        </div>
+        </div>
+        )
+      })}
+
+      <div className="mt-10">
+
+    <h2 className="text-xl font-bold mb-4">
+      ⚠ Implementation Risks
+    </h2>
+
+    <div className="flex gap-2 mb-4">
+
+      <input
+        value={riskText}
+        onChange={(e)=>setRiskText(e.target.value)}
+        placeholder="Describe risk..."
+        className="border p-2 flex-1"
+      />
+
+      <button
+        onClick={addRisk}
+        className="bg-red-500 text-white px-4 py-2 rounded"
+      >
+        Add Risk
+      </button>
+
+    </div>
+
+    <div className="border rounded">
+
+      {risks.map((r)=>(
+        <div key={r.id} className="border-b p-3">
+
+          <div className="font-medium">
+            {r.description}
+          </div>
+
+          <div className="text-xs text-gray-500">
+            Severity: {r.severity}
+          </div>
+
+        </div>
+      ))}
+
+    </div>
+
+      </div>
+
     </div>
   )
 }
