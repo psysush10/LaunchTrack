@@ -138,6 +138,36 @@ const health = getHealth()
 
   fetchMilestones()
 }
+
+//assign single dependency for milestone
+const handleDependencyChange = async (milestoneId:string, dependencyId:string) => {
+  const updatedDependencies = dependencyId
+  ? [dependencyId]
+  : []
+
+  const {error} = await supabase
+    .from("milestones")
+    .update({
+      depends_on: updatedDependencies
+    })
+    .eq("id",milestoneId)
+
+  if(error){
+    console.log(error)
+    return
+  }
+
+  setMilestones((prev) =>
+  prev.map((milestone) => 
+  milestone.id === milestoneId
+  ?{
+    ...milestone,
+    depends_on: updatedDependencies
+  }
+  : milestone
+  )
+)
+}
 //status colour for UI based on milestone status
 const getStatusColor = (status: string) => {
   if (status === "Completed") return "bg-green-100 text-green-800"
@@ -197,8 +227,8 @@ const computedMilestones = milestones.map((milestone) => ({
       {computedMilestones.map((m)=>{
         const displayStatus = m.computedStatus || m.status
         return(
-        <div className="border rounded">
-        <div key={m.id} className="border-b p-4 flex items-center justify-between hover:bg-gray-100 transition">
+        <div key={m.id} className="border rounded">
+        <div className="border-b p-4 flex items-center justify-between hover:bg-gray-100 transition">
 
         <div className="flex flex-col">
 
@@ -214,11 +244,15 @@ const computedMilestones = milestones.map((milestone) => ({
           </div>
         )}
 
-        {displayStatus ==="Blocked" && (
-            <p className="text-xs text-red-500 mt-1">
-              {m.blocker_reason}
-            </p>
-          )}
+        {m.depends_on?.length > 0 &&(
+          <p className='text-xs text-gray-500 mt-1'>
+            Depends on: {
+              computedMilestones.find(
+                (milestone) => milestone.id === m.depends_on[0]
+              )?.name
+            }
+          </p>
+        )}
 
         </div>
 
@@ -228,13 +262,28 @@ const computedMilestones = milestones.map((milestone) => ({
           <select
             value={m.status}
             onChange={(e)=>updateStatus(m.id, e.target.value)}
-            className="border p-1"
+            className="border rounded px-2 py-1 text-sm"
           >
             <option>Not Started</option>
             <option>In Progress</option>
             <option>Completed</option>
             <option>Blocked</option>
           </select>
+
+          <select
+            value={m.depends_on?.[0] || ""}
+            onChange={(e)=>handleDependencyChange(m.id, e.target.value)}
+            className='border rounded px-2 py-1 text-sm'
+          >
+            <option value="">No Dependency</option>
+            {computedMilestones
+            .filter((milestone) => milestone.id !== m.id)
+            .map((milestone) => (
+              <option key={milestone.id} value={milestone.id}>
+                {milestone.name}
+              </option>
+            ))}
+            </select> 
         </div>
         </div>
         </div>
