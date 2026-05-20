@@ -180,39 +180,25 @@ const computeCommandCenter = () => {
 
   projects.forEach(project => {
 
-    const projectRisks = risks.filter(
-      r => r.project_id === project.id && r.status !== "Mitigated"
-    )
+    const healthData = getProjectHealth(project.id)
 
-    const daysToGoLive =
-      (new Date(project.go_live_date).getTime() - today.getTime())
-      / (1000 * 60 * 60 * 24)
+  if (healthData.status === "At Risk") {
+    attention.push({
+      ...project,
+      reason: healthData.reason
+    })
+    return
+  }
 
-    if(projectRisks.length > 0){
-      attention.push({
-        ...project,
-        reason: "Open Risk"
-      })
-      return
-    }
+  if (healthData.status === "Warning") {
+    watch.push({
+      ...project,
+      reason: healthData.reason
+    })
+    return
+  }
 
-    if(daysToGoLive <= 7){
-      attention.push({
-        ...project,
-        reason: "Go-Live within 7 days"
-      })
-      return
-    }
-
-    if(daysToGoLive <= 14){
-      watch.push({
-        ...project,
-        reason: "Go-Live approaching"
-      })
-      return
-    }
-
-    healthy.push(project)
+  healthy.push(project)
 
   })
 
@@ -266,7 +252,7 @@ if (error) {
         Implementation Dashboard
       </h1>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap gap-3">
 
         <Link
           href="/create"

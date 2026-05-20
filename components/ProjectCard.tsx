@@ -39,16 +39,6 @@ export default function ProjectCard({
     const progress = getProjectProgress(project.id)
     const healthData = getProjectHealth(project.id)
 
-    let borderColor = "border-green-500"
-
-    if (healthData.status === "Warning") {
-    borderColor = "border-yellow-500"
-    }
-
-    if (healthData.status === "At Risk") {
-    borderColor = "border-red-500"
-    }
-
     const updateProject = async () => {
       try{
         setLoading(true)
