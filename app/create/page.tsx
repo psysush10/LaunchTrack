@@ -122,9 +122,11 @@ export default function CreateProject() {
 
   return (
     
-    <div className="p-10">
-
-      <h1 className="text-2xl font-bold mb-6">
+    <div className="max-w-xl mx-auto px-6 py-10">
+      
+      
+      <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <h1 className="text-3xl font-bold mb-8 tracking-tight mb-6">
         Create Implementation
       </h1>
 
@@ -151,12 +153,14 @@ export default function CreateProject() {
       <button
         disabled={loading}
         onClick={createProject}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-medium transition"
       >
         {loading ? "Creating ..." : "Create Implementation"} 
       </button>
 
       <SuccessModal isVisible={showSuccess} />
+      </div>
+      
 
     </div>
   )

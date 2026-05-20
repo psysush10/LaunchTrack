@@ -74,44 +74,75 @@ export default function ProjectCard({
 
   return (
     <div
-      className={`border border-gray-200 border-l-4 ${borderColor} p-4 hover:shadow-sm`}
-    >
+      className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+    >  
 
     <Link
       href={`/projects/${project.id}`}
       className="block hover:bg-gray-50 transition"
     >
+    <div className="flex flex-col gap-4 h-full">
+      {/* Top section */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
+          <h3 className="text-xl font-semibold">
+            {project.client_name}
+          </h3>
 
-      <div className="font-semibold">
-        {project.client_name}
+          <p className="text-sm text-gray-500 mt-1">
+            Go Live: {formatDate(project.go_live_date)}
+          </p>
+        </div>
+        <HealthBadge status={healthData.status} />
       </div>
+      
+    {/* Middle section */}
+    <div className="space-y-1 text-sm text-gray-600">
+      <p>{healthData.reason}</p>
+      <p>
+        Progress tracking and milestone coordination
+      </p>
+    </div>
 
-      <div className="text-sm text-gray-500">
-        Go Live: {formatDate(project.go_live_date)}
-      </div>
+    <div className="mt-auto">
+      <div className="flex justify-between text-sm mb-2">
+  <span className="text-gray-500">
+    Progress
+  </span>
 
-      <HealthBadge status={healthData.status} />
+  <span className="font-medium">
+    {progress}%
+  </span>
+</div>
 
-      <div className="text-sm text-gray-500">
-        {healthData.reason}
-      </div>
+<div className="w-full bg-gray-200 rounded-full h-2">
+  <div
+    className="bg-blue-500 h-2 rounded-full"
+    style={{ width: `${progress}%` }}
+  />
+</div>
+    </div>
+    <div className="mt-4">
+  <span className="text-sm font-medium text-blue-600 hover:text-blue-700">
+    View Details →
+  </span>
+</div>
+    </div>
 
-      <div className="text-sm text-gray-500">
-        Progress: {progress}%
-      </div>
+
 
     </Link>
 
     <button
       onClick={() => setEditing(true)}
-      className="text-sm text-blue-600 mt-2"
+      className="text-sm font-medium text-blue-600 hover:text-blue-700 mt-4 inline-block"
     >
       Edit
     </button>
 
     {editing && (
 
-      <div className="mt-4 border rounded p-4">
+      <div className="mt-5 border border-gray-200 rounded-xl p-5 bg-gray-50">
 
         <FormInput
           placeholder="Client Name"
@@ -133,7 +164,7 @@ export default function ProjectCard({
               setGoLiveDate(project.go_live_date)
               setEditing(false)
             }}
-            className="ml-2 border px-4 py-2 rounded"
+            className="border border-gray-300 bg-white hover:bg-gray-100 px-5 py-2 rounded-lg font-medium transition"
           >
               Cancel
           </button>
@@ -141,7 +172,7 @@ export default function ProjectCard({
           <button
             disabled={loading}
             onClick={updateProject}
-            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition disabled:opacity-50"
           >
             {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : "Save"}
           </button>

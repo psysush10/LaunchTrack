@@ -10,11 +10,11 @@ export default function SummaryCard({
     valueColor = "text-black"
 }: SummaryCardProps){
     return (
-        <div className="bg-white border p-4 rounded">
+        <div className="bg-white border p-4 rounded hover:shadow-md transition">
             <div className="text-sm text-gray-500">
             {title}
             </div>
-            <div className={`text-2xl font-bold ${valueColor}`}>
+            <div className={`text-4xl font-bold ${valueColor}`}>
             {value}
             </div>
         </div>

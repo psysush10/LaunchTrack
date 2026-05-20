@@ -40,7 +40,7 @@ export default function ProjectList({
         placeholder="Search projects..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="border p-2 rounded w-full mb-4"
+        className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       {filteredProjects.length > 0 ? (

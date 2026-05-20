@@ -233,55 +233,68 @@ const formatDate = (date: string) => {
 
 if(loading){
   return(
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
-    </div>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+  <div className="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+
+  <p className="text-sm text-gray-500">
+    Loading dashboard...
+  </p>
+</div>
     
   )
 }
 
 if (error) {
   return (
-    <div className="p-10">
-      <p className="text-red-500">
+    <div className="max-w-2xl mx-auto py-20">
+      <div className="border border-red-200 bg-red-50 rounded-xl p-6">
+        <p className="text-red-600 font-medium">
         Failed to load dashboard: {error}
-      </p>
+        </p>
+        </div>
     </div>
   )
 }
 
   return (
 
-    <div className="p-10">
+    <div className="max-w-7xl mx-auto px-6 py-8">
 
-      <div className="flex justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
 
-        <h1 className="text-2xl font-bold">
-          Implementation Dashboard
-        </h1>
+      <h1 className="text-3xl font-bold tracking-tight">
+        Implementation Dashboard
+      </h1>
+
+      <div className="flex items-center gap-3">
 
         <Link
           href="/create"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition disabled:opacity-50"
         >
           + Create Implementation
         </Link>
-        <Link href="/members"
-        className="bg-blue-600 text-white px-4 py-2 rounded">
-  Members
-</Link>
+
+        <Link
+          href="/members"
+          className="border border-gray-300 bg-white hover:bg-gray-100 px-5 py-2 rounded-lg font-medium transition"
+        >
+          Members
+        </Link>
 
         <button
-  onClick={logout}
-  className="border px-3 py-1 rounded">
-Logout
-</button>
-
+          onClick={logout}
+          className="border border-gray-300 bg-white hover:bg-gray-100 px-5 py-2 rounded-lg font-medium transition"
+        >
+          Logout
+        </button>
 
       </div>
 
+</div>
+
 {/* Implementation Dashboard */}
-<div className="grid grid-cols-4 gap-4 mb-8">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
 
   <SummaryCard
@@ -310,13 +323,13 @@ Logout
 </div>
 
 {/* command center */}
-<div className="bg-gray-50 border rounded p-4 mb-8">
+<div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-10">
 
-<h2 className="text-lg font-semibold mb-4">
+<h2 className="text-2xl font-bold mb-6">
 Implementation Command Center
 </h2>
 
-<div className="grid grid-cols-3 gap-8">
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
 
 <CommandCenterSection
@@ -350,7 +363,9 @@ Implementation Command Center
 </div>
 
 { projects.length === 0 ? (
+  <div className='mt-10'>
   <EmptyState />
+  </div>
 ) : (
   <ProjectList
     projects={projects}

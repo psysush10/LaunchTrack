@@ -12,6 +12,7 @@ export default function ProjectPage() {
   const projectId = params.id as string
 
   const [milestones, setMilestones] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [risks, setRisks] = useState<any[]>([])
   const [riskText, setRiskText] = useState("")
 
@@ -35,6 +36,7 @@ export default function ProjectPage() {
     }
 
     setMilestones(data || [])
+    setLoading(false)
   }
 
 
@@ -184,58 +186,150 @@ const computedMilestones = milestones.map((milestone) => ({
   computedStatus: getComputedStatus(milestone,milestones)
 }))
 
+if (loading) {
+  return (
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      {/* Progress skeleton */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-pulse">
+
+        <div className="h-4 w-32 bg-gray-200 rounded mb-4"></div>
+
+        <div className="h-8 w-20 bg-gray-200 rounded mb-6"></div>
+
+        <div className="h-3 w-full bg-gray-200 rounded-full"></div>
+
+      </div>
+      {/* Timeline Skeleton */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-pulse">
+
+        <div className="h-6 w-52 bg-gray-200 rounded mb-8"></div>
+
+        <div className="flex justify-between">
+
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-gray-200"></div>
+
+              <div className="w-16 h-3 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+
+        </div>
+      </div>
+
+      {/* Milestone Skeleton */}
+      <div className="space-y-5">
+              {[...Array(5)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm animate-pulse"
+        >
+
+          <div className="flex justify-between items-start">
+
+            <div className="space-y-3">
+
+              <div className="h-5 w-40 bg-gray-200 rounded"></div>
+
+              <div className="h-4 w-56 bg-gray-200 rounded"></div>
+
+            </div>
+
+            <div className="flex gap-3">
+
+              <div className="h-10 w-32 bg-gray-200 rounded-lg"></div>
+
+              <div className="h-10 w-40 bg-gray-200 rounded-lg"></div>
+
+            </div>
+
+          </div>
+
+  </div>
+))}
+      </div>
+    </div>
+
+    
+  )
+}
 
   return (
-    <div className="p-10">
+    <div className="max-w-7xl mx-auto px-6 py-8">
 
-      <h1 className="text-2xl font-bold mb-6">
+      <h1 className="text-3xl font-bold tracking-tight mb-8">
         Implementation Milestones
       </h1>
 
-      <div className="mb-6">
-  <p className="text-sm text-gray-600">
-    Progress: {progress}%
-  </p>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-10">
 
-  <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+  <div className="flex items-center justify-between mb-4">
+
+    <div>
+      <p className="text-sm text-gray-500">
+        Overall Progress
+      </p>
+
+      <p className="text-2xl font-bold">
+        {progress}%
+      </p>
+    </div>
+
+    <div>
+      <span className={`px-3 py-1 rounded-full text-sm font-medium
+        ${health === "Healthy" ? "bg-green-100 text-green-700" : ""}
+        ${health === "Warning" ? "bg-yellow-100 text-yellow-700" : ""}
+        ${health === "At Risk" ? "bg-red-100 text-red-700" : ""}
+      `}>
+        {health}
+      </span>
+    </div>
+
+  </div>
+
+  <div className="w-full bg-gray-200 rounded-full h-3">
     <div
-      className="bg-blue-500 h-3 rounded-full"
+      className="bg-blue-500 h-3 rounded-full transition-all"
       style={{ width: `${progress}%` }}
     />
   </div>
-      </div>
 
-      <p className="text-sm mt-3 font-medium">
-        Health: 
-        {health === "Healthy" && " 🟢 Healthy"}
-        {health === "Warning" && " 🟡 Warning"}
-        {health === "At Risk" && " 🔴 At Risk"}
-      </p>
+</div>
 
-      <div className="flex items-center gap-4 overflow-x-auto mb-8">
-        <div className="mt-6 mb-6">
+      <div className="bg-white border border-gray-200 rounded-2xl px-6 pt-5 pb-5 shadow-sm mb-10">
 
-        <h2 className="text-lg font-semibold mb-2">
+        <h2 className="text-2xl font-bold mb-6">
           Implementation Timeline
         </h2>
+        <div className="mt-4">
+                  <Timeline milestones={computedMilestones} />
+        </div>
 
-        <Timeline milestones={computedMilestones} />
-
-      </div>
       </div>
 
       {computedMilestones.map((m)=>{
         const displayStatus = m.computedStatus || m.status
         return(
-        <div key={m.id} className="border rounded">
-        <div className="border-b p-4 flex items-center justify-between hover:bg-gray-100 transition">
+        <div 
+          key={m.id} 
+          className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-5">
+        <div 
+          className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
 
         <div className="flex flex-col">
 
-        <div
-          className={`font-semibold px-2 py-1 rounded w-fit ${getStatusColor(displayStatus)}`}
-        >
-          {m.name}
+        <div className="flex items-center gap-3">
+
+          <h3 className="text-lg font-semibold">
+            {m.name}
+          </h3>
+
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(displayStatus)}`}
+          >
+            {displayStatus}
+          </span>
+
         </div>
 
         {m.due_date && (
@@ -254,15 +348,21 @@ const computedMilestones = milestones.map((milestone) => ({
           </p>
         )}
 
+        {displayStatus === "Blocked" && (
+          <p className="text-sm text-orange-500 mt-2">
+            Resolve dependency before completing this milestone
+          </p>
+        )}
+
         </div>
 
         <div
-        className='flex items-center gap-3'>
+        className='flex flex-col sm:flex-row gap-3 w-full md:w-auto'>
           
           <select
             value={m.status}
             onChange={(e)=>updateStatus(m.id, e.target.value)}
-            className="border rounded px-2 py-1 text-sm"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
           >
             <option>Not Started</option>
             <option>In Progress</option>
@@ -273,7 +373,7 @@ const computedMilestones = milestones.map((milestone) => ({
           <select
             value={m.depends_on?.[0] || ""}
             onChange={(e)=>handleDependencyChange(m.id, e.target.value)}
-            className='border rounded px-2 py-1 text-sm'
+            className='border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white'
           >
             <option value="">No Dependency</option>
             {computedMilestones
@@ -290,9 +390,9 @@ const computedMilestones = milestones.map((milestone) => ({
         )
       })}
 
-      <div className="mt-10">
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mt-12">
 
-    <h2 className="text-xl font-bold mb-4">
+    <h2 className="text-lg font-semibold mb-4">
       ⚠ Implementation Risks
     </h2>
 
@@ -302,12 +402,12 @@ const computedMilestones = milestones.map((milestone) => ({
         value={riskText}
         onChange={(e)=>setRiskText(e.target.value)}
         placeholder="Describe risk..."
-        className="border p-2 flex-1"
+        className="border border-gray-300 rounded-lg px-4 py-2 flex-1"
       />
 
       <button
         onClick={addRisk}
-        className="bg-red-500 text-white px-4 py-2 rounded"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition disabled:opacity-50"
       >
         Add Risk
       </button>

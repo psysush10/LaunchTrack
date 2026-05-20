@@ -17,7 +17,7 @@ export default function FormInput({
         placeholder={placeholder}
         value={value}
         onChange={(e)=>onChange(e.target.value)}
-        className="border p-2 block mb-4"
+        className="border p-2 block mb-4 space-y-5"
       />
     )
 }
