@@ -172,7 +172,6 @@ const getProjectHealth = (projectId: string) => {
 //compute project health
 const computeCommandCenter = () => {
 
-  const today = new Date()
 
   const attention:any[] = []
   const watch:any[] = []

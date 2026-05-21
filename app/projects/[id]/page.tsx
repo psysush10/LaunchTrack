@@ -13,6 +13,8 @@ export default function ProjectPage() {
 
   const [milestones, setMilestones] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAddingRisk, setIsAddingRisk] = useState(false)
+  const [error, setError] = useState("")
   const [risks, setRisks] = useState<any[]>([])
   const [riskText, setRiskText] = useState("")
 
@@ -58,10 +60,13 @@ export default function ProjectPage() {
 
 //add risk creation
 const addRisk = async () => {
-
-  if(!riskText) return
-
-  const { error } = await supabase
+  if(!riskText) {
+    setError("Please enter the risk")
+    return
+  }
+  try{
+    setIsAddingRisk(true)
+    const { error } = await supabase
     .from('risks')
     .insert({
       project_id: projectId,
@@ -70,11 +75,18 @@ const addRisk = async () => {
 
   if(error){
     console.error(error)
+    setError("Unable to add risk. Please try again.")
     return
   }
 
   setRiskText("")
+  setError("")
   fetchRisks()
+  }catch(err:any){
+    setError(err.message)
+  }finally{
+    setIsAddingRisk(false)
+  }
 }
 
 // progress calculation
@@ -396,20 +408,29 @@ if (loading) {
       ⚠ Implementation Risks
     </h2>
 
-    <div className="flex gap-2 mb-4">
+    {error &&(
+        <p className='text-red-500'>
+          {error}
+        </p>  
+      )}  
 
+    <div className="flex gap-2 mb-4">
       <input
         value={riskText}
-        onChange={(e)=>setRiskText(e.target.value)}
+        onChange={(e)=>{
+          setRiskText(e.target.value)
+          if(error) setError("")
+        }}
         placeholder="Describe risk..."
         className="border border-gray-300 rounded-lg px-4 py-2 flex-1"
       />
 
       <button
         onClick={addRisk}
+        disabled={isAddingRisk}
         className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition disabled:opacity-50"
       >
-        Add Risk
+        {isAddingRisk? "Adding..." : "Add Risk"}
       </button>
 
     </div>
